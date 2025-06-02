@@ -583,11 +583,22 @@ class DocumentBatchIndexingStatusApi(DocumentResource):
                 .filter(DocumentSegment.document_id == str(document.id), DocumentSegment.status != "re_segment")
                 .count()
             )
-            document.completed_segments = completed_segments
-            document.total_segments = total_segments
-            if document.is_paused:
-                document.indexing_status = "paused"
-            documents_status.append(marshal(document, document_status_fields))
+            # Create a dictionary with document attributes and additional fields
+            document_dict = {
+                "id": document.id,
+                "indexing_status": "paused" if document.is_paused else document.indexing_status,
+                "processing_started_at": document.processing_started_at,
+                "parsing_completed_at": document.parsing_completed_at,
+                "cleaning_completed_at": document.cleaning_completed_at,
+                "splitting_completed_at": document.splitting_completed_at,
+                "completed_at": document.completed_at,
+                "paused_at": document.paused_at,
+                "error": document.error,
+                "stopped_at": document.stopped_at,
+                "completed_segments": completed_segments,
+                "total_segments": total_segments,
+            }
+            documents_status.append(marshal(document_dict, document_status_fields))
         data = {"data": documents_status}
         return data
 
@@ -616,11 +627,40 @@ class DocumentIndexingStatusApi(DocumentResource):
             .count()
         )
 
-        document.completed_segments = completed_segments
-        document.total_segments = total_segments
-        if document.is_paused:
-            document.indexing_status = "paused"
-        return marshal(document, document_status_fields)
+        # Create a dictionary with document attributes and additional fields
+        document_dict = {
+            "id": document.id,
+            "indexing_status": "paused" if document.is_paused else document.indexing_status,
+            "processing_started_at": document.processing_started_at,
+            "parsing_completed_at": document.parsing_completed_at,
+            "cleaning_completed_at": document.cleaning_completed_at,
+            "splitting_completed_at": document.splitting_completed_at,
+            "completed_at": document.completed_at,
+            "paused_at": document.paused_at,
+            "error": document.error,
+            "stopped_at": document.stopped_at,
+            "completed_segments": completed_segments,
+            "total_segments": total_segments,
+        }
+    #     retry_documents = []
+    #     document_id = document.id
+    #     document = DocumentService.get_document(dataset_id, document_id)
+    #     # 404 if document not found
+    #     if document is None:
+    #        raise NotFound("Document Not Exists.")
+    #     # 403 if document is archived
+    #     if DocumentService.check_archived(document):
+    #       raise ArchivedDocumentImmutableError()
+      
+    #    # 400 if document is completed
+    #     if document.indexing_status == "completed":
+    #      raise DocumentAlreadyFinishedError()
+    #     retry_documents.append(document)
+    
+    #    # retry document
+    #     print("dataset_id, retry_documents", dataset_id, retry_documents)
+    #     DocumentService.retry_document(dataset_id, retry_documents)
+        return marshal(document_dict, document_status_fields)
 
 
 class DocumentDetailApi(DocumentResource):
