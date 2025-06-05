@@ -1824,3 +1824,21 @@ class TraceAppConfig(Base):
             "created_at": str(self.created_at) if self.created_at else None,
             "updated_at": str(self.updated_at) if self.updated_at else None,
         }
+
+# customize model added for saving app permission --- "Ankit"
+
+class AppPermissionConfig(Base):
+    __tablename__ = "app_permission"
+    __table_args__ = (
+        db.PrimaryKeyConstraint("id", name="app_permission_pkey"),
+        db.Index("app_id", "account_id"),
+    )
+
+    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    app_id = db.Column(StringUUID, nullable=False)
+    account_id = db.Column(StringUUID, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, server_default=func.current_timestamp())
+    updated_at = db.Column(db.DateTime, nullable=False, server_default=func.current_timestamp())
+
+
+# End

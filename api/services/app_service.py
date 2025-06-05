@@ -23,6 +23,7 @@ from models.tools import ApiToolProvider
 from services.enterprise.enterprise_service import EnterpriseService
 from services.feature_service import FeatureService
 from services.tag_service import TagService
+from services.app_permission_service import AppPermissionService
 from tasks.remove_app_and_related_data_task import remove_app_and_related_data_task
 
 
@@ -61,7 +62,23 @@ class AppService:
                 filters.append(App.id.in_(target_ids))
             else:
                 return None
+        # start code for check permission of App if user is not admin or owner --- "Ankit Kumar"
 
+        if not current_user.is_admin_or_owner:    
+            app_permission_service = AppPermissionService()
+            app_permission = app_permission_service.get_user_permission(user_id) 
+            if app_permission:
+               app_ids = [str(p.app_id) for p in app_permission]
+               filters.append(App.id.in_(app_ids))
+            else:
+                return {
+                    "items": [],
+                    "page": args["page"],
+                    "per_page": args["limit"],
+                    "total": 0
+                }
+            
+        # End
         app_models = db.paginate(
             db.select(App).where(*filters).order_by(App.created_at.desc()),
             page=args["page"],
