@@ -1,13 +1,8 @@
-from datetime import UTC
-from typing import cast
 
 from extensions.ext_database import db
+from models.account import TenantAccountJoin
 from models.model import App, AppPermissionConfig
-from tasks.remove_app_and_related_data_task import remove_app_and_related_data_task
 
-from models.account import (
-    TenantAccountJoin
-)
 
 class AppPermissionService:
     def get_app_permission(self, app_id: str) -> list:

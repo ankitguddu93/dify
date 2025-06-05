@@ -1,3 +1,4 @@
+from flask import request
 from flask_login import current_user
 from flask_restful import Resource, marshal_with
 from werkzeug.exceptions import BadRequest, Forbidden
@@ -10,11 +11,9 @@ from controllers.console.wraps import (
     enterprise_license_required,
     setup_required,
 )
-from libs.login import login_required
-
-from services.app_permission_service import AppPermissionService
 from fields.app_permission_fields import app_permission_fields
-from flask import request
+from libs.login import login_required
+from services.app_permission_service import AppPermissionService
 
 ALLOW_CREATE_APP_MODES = ["chat", "agent-chat", "advanced-chat", "workflow", "completion"]
 

@@ -20,10 +20,10 @@ from extensions.ext_database import db
 from models.account import Account
 from models.model import App, AppMode, AppModelConfig, Site
 from models.tools import ApiToolProvider
+from services.app_permission_service import AppPermissionService
 from services.enterprise.enterprise_service import EnterpriseService
 from services.feature_service import FeatureService
 from services.tag_service import TagService
-from services.app_permission_service import AppPermissionService
 from tasks.remove_app_and_related_data_task import remove_app_and_related_data_task
 
 

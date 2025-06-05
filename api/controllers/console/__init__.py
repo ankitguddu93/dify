@@ -51,6 +51,7 @@ from .app import (
     agent,
     annotation,
     app,
+    app_permission,  # new Controller defined for "app_permission" ---- "Ankit"
     audio,
     completion,
     conversation,
@@ -65,7 +66,6 @@ from .app import (
     workflow_app_log,
     workflow_run,
     workflow_statistic,
-    app_permission   # new Controller defined for "app_permission" ---- "Ankit"
 )
 
 # Import auth controllers
