@@ -24,8 +24,7 @@ class Mail:
         if dify_config.MAIL_DEFAULT_SEND_FROM:
             self._default_send_from = dify_config.MAIL_DEFAULT_SEND_FROM
 
-        match mail_type:
-            case "resend":
+            if mail_type == "resend":
                 import resend
 
                 api_key = dify_config.RESEND_API_KEY
@@ -38,7 +37,7 @@ class Mail:
 
                 resend.api_key = api_key
                 self._client = resend.Emails
-            case "smtp":
+            elif mail_type == "smtp":
                 from libs.smtp import SMTPClient
 
                 if not dify_config.SMTP_SERVER or not dify_config.SMTP_PORT:
@@ -54,10 +53,11 @@ class Mail:
                     use_tls=dify_config.SMTP_USE_TLS,
                     opportunistic_tls=dify_config.SMTP_OPPORTUNISTIC_TLS,
                 )
-            case _:
+            else:
                 raise ValueError("Unsupported mail type {}".format(mail_type))
 
     def send(self, to: str, subject: str, html: str, from_: Optional[str] = None):
+        from_= dify_config.MAIL_DEFAULT_SEND_FROM
         if not self._client:
             raise ValueError("Mail client is not initialized")
 

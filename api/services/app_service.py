@@ -62,14 +62,24 @@ class AppService:
                 filters.append(App.id.in_(target_ids))
             else:
                 return None
-        # start code for check permission of App if user is not admin or owner --- "Ankit Kumar"
+       # --- Start: Check App permissions if user is not admin or owner --- "Ankit Kumar"
 
-        if not current_user.is_admin_or_owner:    
+        if not current_user.is_admin_or_owner:
             app_permission_service = AppPermissionService()
-            app_permission = app_permission_service.get_user_permission(user_id) 
-            if app_permission:
-               app_ids = [str(p.app_id) for p in app_permission]
-               filters.append(App.id.in_(app_ids))
+            
+            # Get apps user has permission for
+            user_permissions = app_permission_service.get_user_permission(user_id)
+            permission_app_ids = [str(p.app_id) for p in user_permissions] if user_permissions else []
+
+            # Always get apps created by the user
+            created_apps = db.paginate(db.select(App).where(App.created_by == user_id))
+            created_app_ids = [str(app.id) for app in created_apps.items]
+
+            # Combine both, remove duplicates
+            app_ids = list(set(created_app_ids + permission_app_ids))
+
+            if app_ids:
+                filters.append(App.id.in_(app_ids))
             else:
                 return {
                     "items": [],
@@ -77,8 +87,9 @@ class AppService:
                     "per_page": args["limit"],
                     "total": 0
                 }
-            
-        # End
+
+        # --- End: Permission check ---
+
         app_models = db.paginate(
             db.select(App).where(*filters).order_by(App.created_at.desc()),
             page=args["page"],

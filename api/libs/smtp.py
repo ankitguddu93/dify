@@ -19,14 +19,12 @@ class SMTPClient:
     def send(self, mail: dict):
         smtp = None
         try:
-            if self.use_tls:
-                if self.opportunistic_tls:
-                    smtp = smtplib.SMTP(self.server, self.port, timeout=10)
-                    smtp.starttls()
-                else:
-                    smtp = smtplib.SMTP_SSL(self.server, self.port, timeout=10)
+            if self.port == 465:
+                smtp = smtplib.SMTP_SSL(self.server, self.port, timeout=10)
             else:
                 smtp = smtplib.SMTP(self.server, self.port, timeout=10)
+                if self.use_tls:
+                    smtp.starttls()
 
             if self.username and self.password:
                 smtp.login(self.username, self.password)
@@ -38,15 +36,18 @@ class SMTPClient:
             msg.attach(MIMEText(mail["html"], "html"))
 
             smtp.sendmail(self._from, mail["to"], msg.as_string())
-        except smtplib.SMTPException as e:
+        except smtplib.SMTPException:
             logging.exception("SMTP error occurred")
             raise
-        except TimeoutError as e:
+        except TimeoutError:
             logging.exception("Timeout occurred while sending email")
             raise
-        except Exception as e:
+        except Exception:
             logging.exception(f"Unexpected error occurred while sending email to {mail['to']}")
             raise
         finally:
             if smtp:
-                smtp.quit()
+                try:
+                    smtp.quit()
+                except Exception:
+                    pass
